@@ -167,8 +167,9 @@ class Auth {
     const _alg = this.validateAlg(alg);
 
     const iat = this.validateIat(token);
+    const exp = this.validateExp(token)
     const nonce = this.validateNonce(token, Database);
-    return Promise.all([aud, _alg, iat, nonce]);
+    return Promise.all([aud, _alg, iat, exp, nonce]);
   }
   /**
      * @description Validates Aud.
@@ -202,22 +203,40 @@ class Auth {
     return true;
   }
   /**
-     * @description Validates Iat.
+     * @description Validates Iat - checks issued at time is in the past.
      * @param {Object} token - Id token you wish to validate.
      */
 
 
   static async validateIat(token) {
-    provAuthDebug('Checking iat claim to prevent old tokens from being passed.');
+    provAuthDebug('Checking iat claim');
     provAuthDebug('Iat claim: ' + token.iat);
+    const curTime = Date.now() / 1000;
+    provAuthDebug('Current_time: ' + curTime);
+    if(curTime < token.iat) {
+      provAuthDebug('The token was issued after now, which makes it invalid.');
+      throw new Error('TokenIssuedAfterNow');
+    }
+    return true;
+  }
+
+  /**
+   * @description Checks Exp time is in the future.
+   * @param {Object} token - Id token you wish to validate.
+   */
+  static async validateExp(token) {
+    provAuthDebug('Checking exp claim');
     provAuthDebug('Exp claim: ' + token.exp);
     const curTime = Date.now() / 1000;
     provAuthDebug('Current_time: ' + curTime);
-    const timePassed = curTime - token.iat;
-    provAuthDebug('Time passed: ' + timePassed);
-    if (timePassed > 10) throw new Error('TokenTooOld');
+    if(curTime >= token.exp) {
+      provAuthDebug('The token has passed its expiry time, which makes it invalid.');
+      throw new Error('TokenExpired');
+    }
     return true;
   }
+
+
   /**
      * @description Validates Nonce.
      * @param {Object} token - Id token you wish to validate.
