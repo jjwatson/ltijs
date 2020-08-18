@@ -189,14 +189,6 @@ class Auth {
      * @param {Object} token - Id token you wish to validate.
      */
   static async validateIat (token) {
-    provAuthDebug('Checking iat claim to prevent old tokens from being passed.')
-    provAuthDebug('Iat claim: ' + token.iat)
-    provAuthDebug('Exp claim: ' + token.exp)
-    const curTime = Date.now() / 1000
-    provAuthDebug('Current_time: ' + curTime)
-    const timePassed = curTime - token.iat
-    provAuthDebug('Time passed: ' + timePassed)
-    if (timePassed > 10) throw new Error('TokenTooOld')
     return true
   }
 
