@@ -214,7 +214,7 @@ class Auth {
     const curTime = Date.now() / 1000;
     provAuthDebug('Current_time: ' + curTime);
     if (token.iat && curTime < token.iat) {
-      provAuthDebug('The token was issued after now. Ignoring.');
+      provAuthDebug('The token was issued after now, which is weird but not a failure.');
     }
     return true;
   }
